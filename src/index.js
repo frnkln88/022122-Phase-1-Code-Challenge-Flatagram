@@ -1,43 +1,52 @@
-//get request
-
 const dogAPI = "http://localhost:3000/images/1"
+
 fetch(dogAPI)
-    .then((res)=>res.json())
-    .then(data => displayImage(data))
-    .catch(console.err);
+.then(res => res.json())
+.then(displayImage)
+.catch(console.err);
 
-//declaring constants
+const dogImage = document.getElementById("card-image")
+const dogLikes = document.getElementById("like-count")
+const dogTitle = document.getElementById("card-title")
+const dogList = document.getElementById("comments-list")
+const dogButton = document.getElementById("like-button")
 
-const dogPic = document.getElementById('card-image');
-const dogTitle = document.getElementById("card-title");
-const dogLikes = document.getElementById("like-count");
-const dogComments = document.getElementById("comments-list");
-const dogForm = document.getElementById("comment-form");
-const dogList = document.getElementById("comments-list");
-const dogLikeButton = document.getElementById("like-button");
+let likeCount
+generalId("like-button").addEventListener("click", (e) => {
+    likeCount += 1;
+    renderLikes() 
+})
+generalId("comment-form").addEventListener("submit", postComments)
 
-//set initial like count of dog to 0 (this won't work if the image already has likes, but for this challenge that's not part of the criteria)
-
-let likeCount = 0;
-
-//general function for most deliverables
-
-function displayImage(dog) {
-    dogPic.src = dog.image;
-    dogTitle.innerText=dog.title;
-    dogComments.innerHTML = "What a cute dog!";
-    dogLikeButton.addEventListener("click", (e) => {
-        likeCount += 1;
-        dogLikes.innerText = likeCount + " likes";
-    })
-    dogForm.addEventListener("submit", postComment)
+function generalId(id) {
+    return document.getElementById(id)
 }
 
-//function to append comments
+function displayImage(dog) {
+    likeCount = dog.likes;
+    dogImage.src = dog.image;
+    dogTitle.innerText = dog.title;
+    replaceComments(dog.comments);
+}
+    
+function renderLikes() {
+    generalId("like-count").textContent = `${likeCount} likes`
+}
 
-function postComment(e) {
+function replaceComments(comments) {
+    dogList.innerHTML = ""
+    comments.forEach(renderComments)
+}
+
+function renderComments(comment) {
+    const li = document.createElement("li");
+    li.textContent = comment.content;
+    dogList.append(li);
+}
+
+function postComments(e) {
     e.preventDefault();
-    const newComment = document.createElement("li");
-    newComment.textContent = e.target.comment.value;
-    dogList.appendChild(newComment);
+    const newComment = e.target.comment.value;
+    renderComments({content: newComment});
+    e.target.reset();
 }
